@@ -1,42 +1,44 @@
 #include "TString.hpp"
 
+#include <iostream>
+
 int main()
 {
     TString myStr("Hello");
-    myStr.print();
+    std::puts(myStr);
 
     myStr.append(", World!");
-    myStr.print();
+    std::puts(myStr);
 
     myStr.clear();
     std::cout << "After clear, is empty: " << myStr.empty() << std::endl;
 
     myStr.append("New String");
-    myStr.print();
+    std::puts(myStr);
 
     TString subStr = myStr.substr(0, 3);
-    subStr.print();
+    std::puts(myStr);
 
     size_t found = myStr.find("String");
     std::cout << "Found 'String' at position: " << found << std::endl;
 
     TString otherStr("Hello");
     myStr += otherStr;
-    myStr.print();
+    std::puts(myStr);
 
     TString combinedStr = myStr + " World Again!";
-    combinedStr.print();
+    std::puts(combinedStr);
 
     TString anotherCombinedStr = myStr + otherStr;
-    anotherCombinedStr.print();
+    std::puts(anotherCombinedStr);
 
-    TString subFromIndex = myStr.substr_from_index(4);
-    subFromIndex.print();
+    TString subFromIndex = myStr.substr(4);
+    std::puts(subFromIndex);
 
     std::vector<TString> parts = combinedStr.split(' ');
     for (const auto &part : parts)
     {
-        part.print();
+        std::puts(part);
     }
 
     std::cout << "Buffer size: " << combinedStr.buffer_size() << std::endl;

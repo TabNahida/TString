@@ -1,11 +1,10 @@
 #ifndef TSTRING_HPP
 #define TSTRING_HPP
 
-#include <cmath>
 #include <cstring>
-#include <iostream>
+#include <stdexcept>
 #include <string>
-
+#include <vector>
 
 class TString
 {
@@ -29,6 +28,12 @@ class TString
     }
 
   public:
+    // Default constructor
+    TString() : length(0), buffer(new char[1])
+    {
+        buffer[0] = '\0';
+    }
+
     TString(const char *str) : length(strlen(str))
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
@@ -113,6 +118,12 @@ class TString
     }
 
     const char *c_str() const
+    {
+        return buffer;
+    }
+
+    // Conversion operator to const char*
+    operator const char *() const
     {
         return buffer;
     }
@@ -227,6 +238,72 @@ class TString
     {
         TString result(*this);
         result.append(str);
+        return result;
+    }
+
+    // Substring method
+    TString substr(size_t pos, size_t len) const
+    {
+        if (pos > length)
+        {
+            throw std::out_of_range("Position out of range");
+        }
+        size_t actualLen = std::min(len, length - pos);
+        char *subStr = new char[actualLen + 1];
+        std::memcpy(subStr, buffer + pos, actualLen);
+        subStr[actualLen] = '\0';
+        TString result(subStr);
+        delete[] subStr;
+        return result;
+    }
+
+    // New substring method from index to end
+    TString substr(size_t pos) const
+    {
+        if (pos > length)
+        {
+            throw std::out_of_range("Position out of range");
+        }
+        size_t actualLen = length - pos;
+        char *subStr = new char[actualLen + 1];
+        std::memcpy(subStr, buffer + pos, actualLen);
+        subStr[actualLen] = '\0';
+        TString result(subStr);
+        delete[] subStr;
+        return result;
+    }
+
+    // Find method
+    size_t find(const TString &str) const
+    {
+        const char *pos = std::strstr(buffer, str.buffer);
+        if (pos)
+        {
+            return pos - buffer;
+        }
+        return std::string::npos;
+    }
+
+    // Split method
+    std::vector<TString> split(const char delimiter) const
+    {
+        std::vector<TString> result;
+        size_t start = 0;
+        for (size_t i = 0; i < length; ++i)
+        {
+            if (buffer[i] == delimiter)
+            {
+                if (i > start)
+                {
+                    result.push_back(substr(start, i - start));
+                }
+                start = i + 1;
+            }
+        }
+        if (start < length)
+        {
+            result.push_back(substr(start, length - start));
+        }
         return result;
     }
 };
