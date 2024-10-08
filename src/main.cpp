@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-int main()
+void run_tests()
 {
+    // TString tests
     TString myStr("Hello");
     std::puts(myStr);
 
@@ -17,7 +18,7 @@ int main()
     std::puts(myStr);
 
     TString subStr = myStr.substr(0, 3);
-    std::puts(myStr);
+    std::puts(subStr);
 
     size_t found = myStr.find("String");
     std::cout << "Found 'String' at position: " << found << std::endl;
@@ -43,9 +44,22 @@ int main()
 
     std::cout << "Buffer size: " << combinedStr.buffer_size() << std::endl;
 
+    // TStringConst tests
     constexpr TStringConst constStr("Compile Time String");
     static_assert(constStr.size() == 19, "Unexpected length");
     static_assert(constStr[0] == 'C', "Unexpected character");
+
+    std::cout << "TStringConst value: " << constStr.c_str() << std::endl;
+    std::cout << "Character at index 5: " << constStr[5] << std::endl;
+    constexpr bool isEqual = (constStr == TStringConst("Compile Time String"));
+    static_assert(isEqual, "Unexpected comparison result");
+    constexpr bool isNotEqual = (constStr != TStringConst("Another String"));
+    static_assert(isNotEqual, "Unexpected comparison result");
+}
+
+int main()
+{
+    run_tests();
 
     return 0;
 }

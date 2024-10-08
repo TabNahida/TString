@@ -136,12 +136,15 @@ class TString
     void append(const TString &str)
     {
         size_t newLength = length + str.length;
-        size_t capacity = getClosestPowerOfTwo(newLength + 1);
-        char *newBuffer = new char[capacity];
-        std::memcpy(newBuffer, buffer, length);
-        std::memcpy(newBuffer + length, str.buffer, str.length + 1);
-        delete[] buffer;
-        buffer = newBuffer;
+        size_t newCapacity = getClosestPowerOfTwo(newLength + 1);
+        if (newCapacity > getClosestPowerOfTwo(length + 1))
+        {
+            char *newBuffer = new char[newCapacity];
+            std::memcpy(newBuffer, buffer, length);
+            delete[] buffer;
+            buffer = newBuffer;
+        }
+        std::memcpy(buffer + length, str.buffer, str.length + 1);
         length = newLength;
     }
 
@@ -149,12 +152,15 @@ class TString
     {
         size_t strLength = strlen(str);
         size_t newLength = length + strLength;
-        size_t capacity = getClosestPowerOfTwo(newLength + 1);
-        char *newBuffer = new char[capacity];
-        std::memcpy(newBuffer, buffer, length);
-        std::memcpy(newBuffer + length, str, strLength + 1);
-        delete[] buffer;
-        buffer = newBuffer;
+        size_t newCapacity = getClosestPowerOfTwo(newLength + 1);
+        if (newCapacity > getClosestPowerOfTwo(length + 1))
+        {
+            char *newBuffer = new char[newCapacity];
+            std::memcpy(newBuffer, buffer, length);
+            delete[] buffer;
+            buffer = newBuffer;
+        }
+        std::memcpy(buffer + length, str, strLength + 1);
         length = newLength;
     }
 
@@ -162,12 +168,15 @@ class TString
     {
         size_t strLength = str.size();
         size_t newLength = length + strLength;
-        size_t capacity = getClosestPowerOfTwo(newLength + 1);
-        char *newBuffer = new char[capacity];
-        std::memcpy(newBuffer, buffer, length);
-        std::memcpy(newBuffer + length, str.c_str(), strLength + 1);
-        delete[] buffer;
-        buffer = newBuffer;
+        size_t newCapacity = getClosestPowerOfTwo(newLength + 1);
+        if (newCapacity > getClosestPowerOfTwo(length + 1))
+        {
+            char *newBuffer = new char[newCapacity];
+            std::memcpy(newBuffer, buffer, length);
+            delete[] buffer;
+            buffer = newBuffer;
+        }
+        std::memcpy(buffer + length, str.c_str(), strLength + 1);
         length = newLength;
     }
 
@@ -200,6 +209,26 @@ class TString
     bool operator!=(const TString &other) const
     {
         return !(*this == other);
+    }
+
+    bool operator<(const TString &other) const
+    {
+        return std::strcmp(buffer, other.buffer) < 0;
+    }
+
+    bool operator<=(const TString &other) const
+    {
+        return std::strcmp(buffer, other.buffer) <= 0;
+    }
+
+    bool operator>(const TString &other) const
+    {
+        return std::strcmp(buffer, other.buffer) > 0;
+    }
+
+    bool operator>=(const TString &other) const
+    {
+        return std::strcmp(buffer, other.buffer) >= 0;
     }
 
     TString &operator+=(const TString &str)
@@ -307,6 +336,23 @@ class TString
         return result;
     }
 };
+
+namespace std
+{
+template <> struct hash<TString>
+{
+    size_t operator()(const TString &str) const
+    {
+        return std::hash<std::string>()(str.c_str());
+    }
+};
+} // namespace std
+
+// User-defined literal for TString
+inline TString operator"" _T(const char *str, size_t)
+{
+    return TString(str);
+}
 
 class TStringConst
 {
