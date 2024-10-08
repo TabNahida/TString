@@ -1,7 +1,11 @@
+#ifndef TSTRING_HPP
+#define TSTRING_HPP
+
+#include <cmath>
 #include <cstring>
 #include <iostream>
-#include <stdexcept>
-#include <vector>
+#include <string>
+
 
 class TString
 {
@@ -29,14 +33,31 @@ class TString
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
-        std::strcpy(buffer, str);
+        std::memcpy(buffer, str, length + 1);
+    }
+
+    // New constructor to create TString from a single character
+    TString(char ch) : length(1)
+    {
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        buffer = new char[capacity];
+        buffer[0] = ch;
+        buffer[1] = '\0';
+    }
+
+    // New constructor to create TString from std::string
+    TString(const std::string &str) : length(str.size())
+    {
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        buffer = new char[capacity];
+        std::memcpy(buffer, str.c_str(), length + 1);
     }
 
     TString(const TString &other) : length(other.length)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
-        std::strcpy(buffer, other.buffer);
+        std::memcpy(buffer, other.buffer, length + 1);
     }
 
     TString(TString &&other) noexcept : length(other.length), buffer(other.buffer)
@@ -53,7 +74,7 @@ class TString
             length = other.length;
             size_t capacity = getClosestPowerOfTwo(length + 1);
             buffer = new char[capacity];
-            std::strcpy(buffer, other.buffer);
+            std::memcpy(buffer, other.buffer, length + 1);
         }
         return *this;
     }
@@ -68,6 +89,16 @@ class TString
             other.buffer = nullptr;
             other.length = 0;
         }
+        return *this;
+    }
+
+    TString &operator=(const std::string &str)
+    {
+        delete[] buffer;
+        length = str.size();
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        buffer = new char[capacity];
+        std::memcpy(buffer, str.c_str(), length + 1);
         return *this;
     }
 
@@ -96,8 +127,8 @@ class TString
         size_t newLength = length + str.length;
         size_t capacity = getClosestPowerOfTwo(newLength + 1);
         char *newBuffer = new char[capacity];
-        std::strcpy(newBuffer, buffer);
-        std::strcat(newBuffer, str.buffer);
+        std::memcpy(newBuffer, buffer, length);
+        std::memcpy(newBuffer + length, str.buffer, str.length + 1);
         delete[] buffer;
         buffer = newBuffer;
         length = newLength;
@@ -109,8 +140,21 @@ class TString
         size_t newLength = length + strLength;
         size_t capacity = getClosestPowerOfTwo(newLength + 1);
         char *newBuffer = new char[capacity];
-        std::strcpy(newBuffer, buffer);
-        std::strcat(newBuffer, str);
+        std::memcpy(newBuffer, buffer, length);
+        std::memcpy(newBuffer + length, str, strLength + 1);
+        delete[] buffer;
+        buffer = newBuffer;
+        length = newLength;
+    }
+
+    void append(const std::string &str)
+    {
+        size_t strLength = str.size();
+        size_t newLength = length + strLength;
+        size_t capacity = getClosestPowerOfTwo(newLength + 1);
+        char *newBuffer = new char[capacity];
+        std::memcpy(newBuffer, buffer, length);
+        std::memcpy(newBuffer + length, str.c_str(), strLength + 1);
         delete[] buffer;
         buffer = newBuffer;
         length = newLength;
@@ -159,6 +203,12 @@ class TString
         return *this;
     }
 
+    TString &operator+=(const std::string &str)
+    {
+        append(str);
+        return *this;
+    }
+
     TString operator+(const TString &other) const
     {
         TString result(*this);
@@ -173,71 +223,11 @@ class TString
         return result;
     }
 
-    TString substr(size_t pos, size_t len) const
+    TString operator+(const std::string &str) const
     {
-        if (pos > length)
-        {
-            throw std::out_of_range("Position out of range");
-        }
-        size_t actualLen = std::min(len, length - pos);
-        char *subStr = new char[actualLen + 1];
-        std::strncpy(subStr, buffer + pos, actualLen);
-        subStr[actualLen] = '\0';
-        TString result(subStr);
-        delete[] subStr;
+        TString result(*this);
+        result.append(str);
         return result;
-    }
-
-    TString substr_from_index(size_t index) const
-    {
-        return substr(index, length - index);
-    }
-
-    size_t find(const TString &str) const
-    {
-        const char *pos = std::strstr(buffer, str.buffer);
-        if (pos)
-        {
-            return pos - buffer;
-        }
-        return std::string::npos;
-    }
-
-    size_t find(const char *str) const
-    {
-        const char *pos = std::strstr(buffer, str);
-        if (pos)
-        {
-            return pos - buffer;
-        }
-        return std::string::npos;
-    }
-
-    std::vector<TString> split(const char delimiter) const
-    {
-        std::vector<TString> result;
-        size_t start = 0;
-        for (size_t i = 0; i < length; ++i)
-        {
-            if (buffer[i] == delimiter)
-            {
-                if (i > start)
-                {
-                    result.push_back(substr(start, i - start));
-                }
-                start = i + 1;
-            }
-        }
-        if (start < length)
-        {
-            result.push_back(substr(start, length - start));
-        }
-        return result;
-    }
-
-    void print() const
-    {
-        std::cout << buffer << std::endl;
     }
 };
 
@@ -305,3 +295,5 @@ class TStringConst
         return buffer[index];
     }
 };
+
+#endif // TSTRING_HPP
