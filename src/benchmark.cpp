@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 
 void printUsage()
@@ -30,182 +31,254 @@ void performanceTest(bool exportToFile, int numIterations)
 
     // Test data
     const char *baseCString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    TString baseString(baseCString);
-    TString longString;
-    longString.reserve(10000);
-    for (int i = 0; i < 10000; ++i)
-    {
-        longString += 'a';
-    }
+    const char *longCString =
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaa";
 
-    // 1. TString Construction Performance (Short String)
+    // Header for the table output
+    std::cout << std::left << std::setw(30) << "Operation" << std::setw(20) << "TString (ms)" << std::setw(20)
+              << "std::string (ms)" << "\n";
+    std::cout << std::string(70, '-') << "\n";
+
+    // 1. TString and std::string Construction Performance (Short String)
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
         TString str(baseCString);
     }
     auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Construction of TString (short string) took: " << duration << " ms\n";
-    if (exportToFile)
-    {
-        outFile << "  \"TString_Construction_Short\": " << duration << ",\n";
-    }
+    auto tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    // TString Construction Performance (Long String)
-    start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < numIterations; ++i)
-    {
-        TString str(longString.c_str());
-    }
-    end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Construction of TString (long string) took: " << duration << " ms\n";
-    if (exportToFile)
-    {
-        outFile << "  \"TString_Construction_Long\": " << duration << ",\n";
-    }
-
-    // std::string Construction Performance (Short String)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
         std::string str(baseCString);
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Construction of std::string (short string) took: " << duration << " ms\n";
+    auto stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Construction (short string)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
     if (exportToFile)
     {
-        outFile << "  \"StdString_Construction_Short\": " << duration << ",\n";
+        outFile << "  \"Construction_Short\": {\"TString\": " << tStringDuration
+                << ", \"StdString\": " << stdStringDuration << "},\n";
     }
 
-    // std::string Construction Performance (Long String)
+    // 2. TString and std::string Construction Performance (Long String)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        std::string str(longString.c_str());
+        TString str(longCString);
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Construction of std::string (long string) took: " << duration << " ms\n";
-    if (exportToFile)
-    {
-        outFile << "  \"StdString_Construction_Long\": " << duration << ",\n";
-    }
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    // 2. TString Find Performance (Short String)
-    TString tStrShort(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = tStrShort.find("Z");
+        std::string str(longCString);
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Find operation in TString (short string) took: " << duration << " ms\n";
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Construction (long string)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
     if (exportToFile)
     {
-        outFile << "  \"TString_Find_Short\": " << duration << ",\n";
+        outFile << "  \"Construction_Long\": {\"TString\": " << tStringDuration
+                << ", \"StdString\": " << stdStringDuration << "},\n";
     }
 
-    // TString Find Performance (Long String)
-    TString tStrLong(longString.c_str());
+    // 3. TString and std::string Copy Performance
+    TString tStrCopySource(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = tStrLong.find("a");
+        TString tStrCopy(tStrCopySource);
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Find operation in TString (long string) took: " << duration << " ms\n";
-    if (exportToFile)
-    {
-        outFile << "  \"TString_Find_Long\": " << duration << ",\n";
-    }
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    // std::string Find Performance (Short String)
+    std::string stdStrCopySource(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = std::string(baseCString).find("Z");
+        std::string stdStrCopy(stdStrCopySource);
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Find operation in std::string (short string) took: " << duration << " ms\n";
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Copy (short string)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
     if (exportToFile)
     {
-        outFile << "  \"StdString_Find_Short\": " << duration << ",\n";
+        outFile << "  \"Copy_Short\": {\"TString\": " << tStringDuration << ", \"StdString\": " << stdStringDuration
+                << "},\n";
     }
 
-    // std::string Find Performance (Long String)
+    // 4. TString and std::string Append Performance
+    TString tStrAppend(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = std::string(longString.c_str()).find("a");
+        tStrAppend.append("a");
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Find operation in std::string (long string) took: " << duration << " ms\n";
-    if (exportToFile)
-    {
-        outFile << "  \"StdString_Find_Long\": " << duration << ",\n";
-    }
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    // 3. TString Substring Performance (Short String)
+    std::string stdStrAppend(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        TString subStr = tStrShort.substr(5, 10);
+        stdStrAppend += "a";
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Substring operation in TString (short string) took: " << duration << " ms\n";
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Append (single char)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
     if (exportToFile)
     {
-        outFile << "  \"TString_Substring_Short\": " << duration << ",\n";
+        outFile << "  \"Append_Single_Char\": {\"TString\": " << tStringDuration
+                << ", \"StdString\": " << stdStringDuration << "},\n";
     }
 
-    // TString Substring Performance (Long String)
+    // 5. TString and std::string Clear Performance
+    TString tStrClear(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        TString subStr = tStrLong.substr(100, 50);
+        tStrClear.clear();
+        tStrClear = baseCString;
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Substring operation in TString (long string) took: " << duration << " ms\n";
-    if (exportToFile)
-    {
-        outFile << "  \"TString_Substring_Long\": " << duration << ",\n";
-    }
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    // std::string Substring Performance (Short String)
+    std::string stdStrClear(baseCString);
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        std::string subStr = std::string(baseCString).substr(5, 10);
+        stdStrClear.clear();
+        stdStrClear = baseCString;
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Substring operation in std::string (short string) took: " << duration << " ms\n";
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Clear" << std::setw(20) << tStringDuration << std::setw(20)
+              << stdStringDuration << "\n";
     if (exportToFile)
     {
-        outFile << "  \"StdString_Substring_Short\": " << duration << ",\n";
+        outFile << "  \"Clear\": {\"TString\": " << tStringDuration << ", \"StdString\": " << stdStringDuration
+                << "},\n";
     }
 
-    // std::string Substring Performance (Long String)
+    // 6. TString and std::string Find Performance (Short String)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        std::string subStr = std::string(longString.c_str()).substr(100, 50);
+        size_t pos = tStrCopySource.find("Z");
     }
     end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << "Substring operation in std::string (long string) took: " << duration << " ms\n";
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        size_t pos = stdStrCopySource.find("Z");
+    }
+    end = std::chrono::high_resolution_clock::now();
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Find (short string)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
     if (exportToFile)
     {
-        outFile << "  \"StdString_Substring_Long\": " << duration << "\n";
+        outFile << "  \"Find_Short\": {\"TString\": " << tStringDuration << ", \"StdString\": " << stdStringDuration
+                << "},\n";
+    }
+
+    // 7. TString and std::string Find Performance (Long String)
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        size_t pos = tStrAppend.find("a");
+    }
+    end = std::chrono::high_resolution_clock::now();
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        size_t pos = stdStrAppend.find("a");
+    }
+    end = std::chrono::high_resolution_clock::now();
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Find (long string)" << std::setw(20) << tStringDuration << std::setw(20)
+              << stdStringDuration << "\n";
+    if (exportToFile)
+    {
+        outFile << "  \"Find_Long\": {\"TString\": " << tStringDuration << ", \"StdString\": " << stdStringDuration
+                << "},\n";
+    }
+
+    // 8. TString and std::string Substring Performance (Short String)
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        TString subStr = tStrCopySource.substr(5, 10);
+    }
+    end = std::chrono::high_resolution_clock::now();
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        std::string subStr = stdStrCopySource.substr(5, 10);
+    }
+    end = std::chrono::high_resolution_clock::now();
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Substring (short string)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
+    if (exportToFile)
+    {
+        outFile << "  \"Substring_Short\": {\"TString\": " << tStringDuration
+                << ", \"StdString\": " << stdStringDuration << "},\n";
+    }
+
+    // 9. TString and std::string Substring Performance (Long String)
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        TString subStr = tStrAppend.substr(100, 50);
+    }
+    end = std::chrono::high_resolution_clock::now();
+    tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < numIterations; ++i)
+    {
+        std::string subStr = stdStrAppend.substr(100, 50);
+    }
+    end = std::chrono::high_resolution_clock::now();
+    stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << std::left << std::setw(30) << "Substring (long string)" << std::setw(20) << tStringDuration
+              << std::setw(20) << stdStringDuration << "\n";
+    if (exportToFile)
+    {
+        outFile << "  \"Substring_Long\": {\"TString\": " << tStringDuration << ", \"StdString\": " << stdStringDuration
+                << "}\n";
     }
 
     if (exportToFile)

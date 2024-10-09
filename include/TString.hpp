@@ -58,6 +58,14 @@ class TString
         std::memcpy(buffer, str.c_str(), length + 1);
     }
 
+    // New constructor to create TString with a pre-allocated buffer
+    TString(size_t capacity) : length(0)
+    {
+        size_t adjustedCapacity = getClosestPowerOfTwo(capacity);
+        buffer = new char[adjustedCapacity];
+        buffer[0] = '\0';
+    }
+
     TString(const TString &other) : length(other.length)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
@@ -104,6 +112,17 @@ class TString
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
         std::memcpy(buffer, str.c_str(), length + 1);
+        return *this;
+    }
+
+    // New operator= for const char*
+    TString &operator=(const char *str)
+    {
+        delete[] buffer;
+        length = strlen(str);
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        buffer = new char[capacity];
+        std::memcpy(buffer, str, length + 1);
         return *this;
     }
 
@@ -219,9 +238,29 @@ class TString
         return std::strcmp(buffer, other.buffer) == 0;
     }
 
+    bool operator==(const char *str) const
+    {
+        return std::strcmp(buffer, str) == 0;
+    }
+
+    bool operator==(const std::string &str) const
+    {
+        return std::strcmp(buffer, str.c_str()) == 0;
+    }
+
     bool operator!=(const TString &other) const
     {
         return !(*this == other);
+    }
+
+    bool operator!=(const char *str) const
+    {
+        return !(*this == str);
+    }
+
+    bool operator!=(const std::string &str) const
+    {
+        return !(*this == str);
     }
 
     bool operator<(const TString &other) const
@@ -229,9 +268,29 @@ class TString
         return std::strcmp(buffer, other.buffer) < 0;
     }
 
+    bool operator<(const char *str) const
+    {
+        return std::strcmp(buffer, str) < 0;
+    }
+
+    bool operator<(const std::string &str) const
+    {
+        return std::strcmp(buffer, str.c_str()) < 0;
+    }
+
     bool operator<=(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) <= 0;
+    }
+
+    bool operator<=(const char *str) const
+    {
+        return std::strcmp(buffer, str) <= 0;
+    }
+
+    bool operator<=(const std::string &str) const
+    {
+        return std::strcmp(buffer, str.c_str()) <= 0;
     }
 
     bool operator>(const TString &other) const
@@ -239,9 +298,29 @@ class TString
         return std::strcmp(buffer, other.buffer) > 0;
     }
 
+    bool operator>(const char *str) const
+    {
+        return std::strcmp(buffer, str) > 0;
+    }
+
+    bool operator>(const std::string &str) const
+    {
+        return std::strcmp(buffer, str.c_str()) > 0;
+    }
+
     bool operator>=(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) >= 0;
+    }
+
+    bool operator>=(const char *str) const
+    {
+        return std::strcmp(buffer, str) >= 0;
+    }
+
+    bool operator>=(const std::string &str) const
+    {
+        return std::strcmp(buffer, str.c_str()) >= 0;
     }
 
     TString &operator+=(const TString &str)
@@ -291,11 +370,10 @@ class TString
             throw std::out_of_range("Position out of range");
         }
         size_t actualLen = std::min(len, length - pos);
-        char *subStr = new char[actualLen + 1];
-        std::memcpy(subStr, buffer + pos, actualLen);
-        subStr[actualLen] = '\0';
-        TString result(subStr);
-        delete[] subStr;
+        TString result(actualLen + 1); // Pre-allocated buffer
+        std::memcpy(result.buffer, buffer + pos, actualLen);
+        result.buffer[actualLen] = '\0';
+        result.length = actualLen;
         return result;
     }
 
@@ -307,22 +385,47 @@ class TString
             throw std::out_of_range("Position out of range");
         }
         size_t actualLen = length - pos;
-        char *subStr = new char[actualLen + 1];
-        std::memcpy(subStr, buffer + pos, actualLen);
-        subStr[actualLen] = '\0';
-        TString result(subStr);
-        delete[] subStr;
+        TString result(actualLen + 1); // Pre-allocated buffer
+        std::memcpy(result.buffer, buffer + pos, actualLen);
+        result.buffer[actualLen] = '\0';
+        result.length = actualLen;
         return result;
     }
 
-    // Find method
+    // Optimized find method using Boyer-Moore algorithm
     size_t find(const TString &str) const
     {
-        const char *pos = std::strstr(buffer, str.buffer);
-        if (pos)
+        if (str.length == 0)
+            return 0;
+        if (length < str.length)
+            return std::string::npos;
+
+        // Create bad character shift table
+        const size_t alphabetSize = 256;
+        std::vector<size_t> badCharTable(alphabetSize, str.length);
+        for (size_t i = 0; i < str.length - 1; ++i)
         {
-            return pos - buffer;
+            badCharTable[static_cast<unsigned char>(str.buffer[i])] = str.length - 1 - i;
         }
+
+        size_t s = 0; // shift of the pattern
+        while (s <= (length - str.length))
+        {
+            size_t j = str.length - 1;
+
+            while (j != SIZE_MAX && buffer[s + j] == str.buffer[j])
+            {
+                --j;
+            }
+
+            if (j == SIZE_MAX)
+            {
+                return s;
+            }
+
+            s += badCharTable[static_cast<unsigned char>(buffer[s + str.length - 1])];
+        }
+
         return std::string::npos;
     }
 
@@ -429,29 +532,6 @@ class TStringConst
     constexpr char operator[](size_t index) const
     {
         return buffer[index];
-    }
-
-    constexpr TStringConst substr(size_t pos, size_t len) const
-    {
-        if (pos > length)
-        {
-            throw std::out_of_range("Position out of range");
-        }
-        size_t actualLen = (len > length - pos) ? (length - pos) : len;
-        char *subStr = new char[actualLen + 1];
-        for (size_t i = 0; i < actualLen; ++i)
-        {
-            subStr[i] = buffer[pos + i];
-        }
-        subStr[actualLen] = '\0';
-        TStringConst result(subStr);
-        delete[] subStr;
-        return result;
-    }
-
-    constexpr TStringConst substr(size_t pos) const
-    {
-        return substr(pos, length - pos);
     }
 };
 
