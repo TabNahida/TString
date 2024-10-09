@@ -112,6 +112,19 @@ class TString
         delete[] buffer;
     }
 
+    void reserve(size_t newCapacity)
+    {
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        if (newCapacity > capacity)
+        {
+            size_t reservedCapacity = getClosestPowerOfTwo(newCapacity);
+            char *newBuffer = new char[reservedCapacity];
+            std::memcpy(newBuffer, buffer, length + 1);
+            delete[] buffer;
+            buffer = newBuffer;
+        }
+    }
+
     size_t size() const
     {
         return length;
@@ -416,6 +429,29 @@ class TStringConst
     constexpr char operator[](size_t index) const
     {
         return buffer[index];
+    }
+
+    constexpr TStringConst substr(size_t pos, size_t len) const
+    {
+        if (pos > length)
+        {
+            throw std::out_of_range("Position out of range");
+        }
+        size_t actualLen = (len > length - pos) ? (length - pos) : len;
+        char *subStr = new char[actualLen + 1];
+        for (size_t i = 0; i < actualLen; ++i)
+        {
+            subStr[i] = buffer[pos + i];
+        }
+        subStr[actualLen] = '\0';
+        TStringConst result(subStr);
+        delete[] subStr;
+        return result;
+    }
+
+    constexpr TStringConst substr(size_t pos) const
+    {
+        return substr(pos, length - pos);
     }
 };
 
