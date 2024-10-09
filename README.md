@@ -8,7 +8,8 @@ TString is a custom C++ string implementation designed for efficient memory mana
 - **String Operations**: Provides common string operations, including concatenation, substring extraction, finding substrings, and splitting.
 - **Move Semantics**: Implements both copy and move constructors to efficiently manage resources during object transfers.
 - **Compile-time String Support**: `TStringConst` allows compile-time operations for strings using `constexpr` in C++20.
-- **Utility Methods**: Includes utility methods such as `clear()`, `empty()`, `split()`, and `print()`.
+- **Utility Methods**: Includes utility methods such as `clear()`, `empty()`, `split()`, and hash support.
+- **User-defined Literals**: Supports the `""_T` user-defined literal for easy creation of `TString` instances.
 
 ## Getting Started
 
@@ -33,6 +34,22 @@ Include `TString.hpp` in your code:
 #include "include/TString.hpp"
 ```
 
+You can also add `TString` as a package through xmake by adding the `TabNahida/repo-xmake` repository:
+
+```lua
+add_repositories("tab-repo https://github.com/TabNahida/repo-xmake.git")
+add_requires("tstring")
+```
+
+Then, include it in your target:
+
+```lua
+target("example")
+    set_kind("binary")
+    add_files("src/*.cpp")
+    add_packages("tstring")
+```
+
 ### Example Usage
 
 ```cpp
@@ -40,13 +57,13 @@ Include `TString.hpp` in your code:
 
 int main() {
     TString myStr("Hello");
-    myStr.print();  // Output: Hello
+    std::puts(myStr);  // Output: Hello
 
     myStr.append(", World!");
-    myStr.print();  // Output: Hello, World!
+    std::puts(myStr);  // Output: Hello, World!
 
     TString subStr = myStr.substr(0, 5);
-    subStr.print();  // Output: Hello
+    std::puts(subStr);  // Output: Hello
 
     size_t found = myStr.find("World");
     if (found != std::string::npos) {
@@ -54,7 +71,7 @@ int main() {
     }
 
     TString combinedStr = myStr + " Again!";
-    combinedStr.print();  // Output: Hello, World! Again!
+    std::puts(combinedStr);  // Output: Hello, World! Again!
 
     return 0;
 }
@@ -96,6 +113,7 @@ target_end()
 - **Dynamic Buffer Growth**: The buffer dynamically grows by powers of two, reducing the frequency of memory allocations during string operations.
 - **Move Semantics**: The implementation includes move constructors and assignment operators, allowing efficient transfers of resources without unnecessary copies.
 - **Compile-time Strings**: `TStringConst` is designed to provide compile-time constant string operations using `constexpr`, enabling compile-time validation and manipulation.
+- **Hash Support**: `TString` can be used in hash containers like `std::unordered_set` and `std::unordered_map` by leveraging the `std::hash` specialization.
 
 ## Directory Structure
 
