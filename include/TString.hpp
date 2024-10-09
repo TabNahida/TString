@@ -1,6 +1,7 @@
 #ifndef TSTRING_HPP
 #define TSTRING_HPP
 
+#include <algorithm>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -22,7 +23,9 @@ class TString
         size |= size >> 4;
         size |= size >> 8;
         size |= size >> 16;
+#if SIZE_MAX > 0xFFFFFFFF
         size |= size >> 32;
+#endif
         size++;
         return size;
     }
@@ -392,7 +395,7 @@ class TString
         return result;
     }
 
-    // Optimized find method using Boyer-Moore algorithm
+    // Optimized find method
     size_t find(const TString &str) const
     {
         if (str.length == 0)
@@ -400,32 +403,11 @@ class TString
         if (length < str.length)
             return std::string::npos;
 
-        // Create bad character shift table
-        const size_t alphabetSize = 256;
-        std::vector<size_t> badCharTable(alphabetSize, str.length);
-        for (size_t i = 0; i < str.length - 1; ++i)
+        const char *pos = std::strstr(buffer, str.buffer);
+        if (pos != nullptr)
         {
-            badCharTable[static_cast<unsigned char>(str.buffer[i])] = str.length - 1 - i;
+            return pos - buffer;
         }
-
-        size_t s = 0; // shift of the pattern
-        while (s <= (length - str.length))
-        {
-            size_t j = str.length - 1;
-
-            while (j != SIZE_MAX && buffer[s + j] == str.buffer[j])
-            {
-                --j;
-            }
-
-            if (j == SIZE_MAX)
-            {
-                return s;
-            }
-
-            s += badCharTable[static_cast<unsigned char>(buffer[s + str.length - 1])];
-        }
-
         return std::string::npos;
     }
 
