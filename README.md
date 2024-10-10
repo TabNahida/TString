@@ -5,11 +5,13 @@ TString is a custom C++ string implementation designed for efficient memory mana
 ## Features
 
 - **Dynamic Buffer Management**: Allocates memory with buffer sizes that are powers of two, ensuring efficient memory management and reducing reallocations.
-- **String Operations**: Provides common string operations, including concatenation, substring extraction, finding substrings, and splitting.
+- **String Operations**: Provides common string operations, including concatenation, substring extraction, finding substrings, splitting, and appending.
 - **Move Semantics**: Implements both copy and move constructors to efficiently manage resources during object transfers.
 - **Compile-time String Support**: `TStringConst` allows compile-time operations for strings using `constexpr` in C++20.
 - **Utility Methods**: Includes utility methods such as `clear()`, `empty()`, `split()`, and hash support.
 - **User-defined Literals**: Supports the `""_T` user-defined literal for easy creation of `TString` instances.
+- **Custom Reserve**: Allows pre-allocation of memory to improve efficiency for operations involving large or frequent modifications.
+- **Benchmarking Support**: Includes a benchmark suite comparing `TString` to `std::string` in various scenarios.
 
 ## Getting Started
 
@@ -53,25 +55,24 @@ target("example")
 ### Example Usage
 
 ```cpp
-#include "include/TString.hpp"
+#include "TString.hpp"
+#include <iostream>
 
 int main() {
-    TString myStr("Hello");
-    std::puts(myStr);  // Output: Hello
-
-    myStr.append(", World!");
-    std::puts(myStr);  // Output: Hello, World!
+    TString myStr = "Hello, ";
+    myStr.append("World!");
+    std::cout << myStr << std::endl;  // Output: Hello, World!
 
     TString subStr = myStr.substr(0, 5);
-    std::puts(subStr);  // Output: Hello
+    std::cout << subStr << std::endl;  // Output: Hello
 
     size_t found = myStr.find("World");
-    if (found != std::string::npos) {
+    if (found != TString::npos) {
         std::cout << "Found 'World' at position: " << found << std::endl;
     }
 
     TString combinedStr = myStr + " Again!";
-    std::puts(combinedStr);  // Output: Hello, World! Again!
+    std::cout << combinedStr << std::endl;  // Output: Hello, World! Again!
 
     return 0;
 }
@@ -113,7 +114,26 @@ target_end()
 - **Dynamic Buffer Growth**: The buffer dynamically grows by powers of two, reducing the frequency of memory allocations during string operations.
 - **Move Semantics**: The implementation includes move constructors and assignment operators, allowing efficient transfers of resources without unnecessary copies.
 - **Compile-time Strings**: `TStringConst` is designed to provide compile-time constant string operations using `constexpr`, enabling compile-time validation and manipulation.
+- **Custom Reserve Functionality**: The `reserve` function allows pre-allocating buffer space to prevent frequent reallocations when working with large strings or repeated appending operations.
 - **Hash Support**: `TString` can be used in hash containers like `std::unordered_set` and `std::unordered_map` by leveraging the `std::hash` specialization.
+
+## Benchmark Results
+
+`TString` has been benchmarked against `std::string` across various common operations. The benchmark tests include construction, copy, append, substring, and find operations with both short and long strings. Below is a summary of some of the benchmark results:
+
+| Operation                     | TString (ms) | std::string (ms) |
+|-------------------------------|--------------|------------------|
+| Construction (short string)   | 91           | 245              |
+| Construction (long string)    | 173          | 871              |
+| Copy (short string)           | 66           | 156              |
+| Append (single char)          | 14           | 19               |
+| Clear                         | 76           | 109              |
+| Find (short string)           | 11           | 30               |
+| Find (long string)            | 8            | 14               |
+| Substring (short string)      | 71           | 67               |
+| Substring (long string)       | 73           | 165              |
+
+Note: The benchmarks were run with default settings on an Intel Core Ultra 5 125H processor with 32GB LPDDR5X 7467MHz memory. The results may vary depending on hardware and compiler optimizations. For some operations, such as finding a substring in very long strings, `TString` and `std::string` may show different performance characteristics due to the algorithms and optimizations used.
 
 ## Directory Structure
 
