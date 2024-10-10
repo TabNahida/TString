@@ -44,6 +44,14 @@ class TString
         std::memcpy(buffer, str, length + 1);
     }
 
+    TString(const char *str, size_t len) : length(len)
+    {
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        buffer = new char[capacity];
+        std::memcpy(buffer, str, length);
+        buffer[length] = '\0';
+    }
+
     // New constructor to create TString from a single character
     TString(char ch) : length(1)
     {
@@ -395,7 +403,7 @@ class TString
         return result;
     }
 
-    // Optimized find method
+    // Find method using strstr
     size_t find(const TString &str) const
     {
         if (str.length == 0)
@@ -409,6 +417,27 @@ class TString
             return pos - buffer;
         }
         return std::string::npos;
+    }
+
+    size_t find(const char *str) const
+    {
+        if (str == nullptr || *str == '\0')
+            return 0;
+        size_t strLength = strlen(str);
+        if (length < strLength)
+            return std::string::npos;
+
+        const char *pos = std::strstr(buffer, str);
+        if (pos != nullptr)
+        {
+            return pos - buffer;
+        }
+        return std::string::npos;
+    }
+
+    size_t find(const std::string &str) const
+    {
+        return find(str.c_str());
     }
 
     // Split method
@@ -491,6 +520,10 @@ class TStringConst
     {
     }
 
+    constexpr TStringConst(const char *str, size_t len) : buffer(str), length(len)
+    {
+    }
+
     constexpr size_t size() const
     {
         return length;
@@ -514,6 +547,45 @@ class TStringConst
     constexpr char operator[](size_t index) const
     {
         return buffer[index];
+    }
+
+    constexpr TStringConst substr(size_t pos, size_t len) const
+    {
+        if (pos > length)
+        {
+            throw std::out_of_range("Position out of range");
+        }
+        size_t actualLen = (pos + len > length) ? (length - pos) : len;
+        return TStringConst(buffer + pos, actualLen);
+    }
+
+    constexpr TStringConst substr(size_t pos) const
+    {
+        if (pos > length)
+        {
+            throw std::out_of_range("Position out of range");
+        }
+        return TStringConst(buffer + pos);
+    }
+
+    constexpr size_t find(const TStringConst &str) const
+    {
+        if (str.length == 0)
+            return 0;
+        if (length < str.length)
+            return std::string::npos;
+
+        for (size_t i = 0; i <= length - str.length; ++i)
+        {
+            if (const_strcmp(buffer + i, str.buffer) == 0)
+                return i;
+        }
+        return std::string::npos;
+    }
+
+    constexpr bool empty() const
+    {
+        return length == 0;
     }
 };
 

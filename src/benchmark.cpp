@@ -38,8 +38,10 @@ void performanceTest(bool exportToFile, int numIterations)
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "a"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabafaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "a"
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         "aaaaaaaaaa";
 
@@ -185,7 +187,7 @@ void performanceTest(bool exportToFile, int numIterations)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = tStrCopySource.find("Z");
+        size_t pos = tStrCopySource.find("WZ0");
     }
     end = std::chrono::high_resolution_clock::now();
     tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -193,7 +195,7 @@ void performanceTest(bool exportToFile, int numIterations)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = stdStrCopySource.find("Z");
+        size_t pos = stdStrCopySource.find("WZ0");
     }
     end = std::chrono::high_resolution_clock::now();
     stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -210,7 +212,7 @@ void performanceTest(bool exportToFile, int numIterations)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = tStrAppend.find("a");
+        size_t pos = tStrAppend.find("b");
     }
     end = std::chrono::high_resolution_clock::now();
     tStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -218,7 +220,7 @@ void performanceTest(bool exportToFile, int numIterations)
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < numIterations; ++i)
     {
-        size_t pos = stdStrAppend.find("a");
+        size_t pos = stdStrAppend.find("b");
     }
     end = std::chrono::high_resolution_clock::now();
     stdStringDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
