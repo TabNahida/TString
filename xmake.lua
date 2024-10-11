@@ -1,10 +1,10 @@
+add_rules("plugin.compile_commands.autoupdate", {outputdir = "./"})
+
 add_languages("cxx20")
 
 target("tstring")
-    set_kind("static")
-    add_files("src/TString.cpp")
+    set_kind("headeronly")
     add_headerfiles("include/TString.hpp")
-    add_includedirs("include")
 target_end()
 
 target("MainTest")
