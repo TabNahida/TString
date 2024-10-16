@@ -534,14 +534,99 @@ class TStringConst
         return buffer;
     }
 
+    constexpr operator const char *() const
+    {
+        return buffer;
+    }
+
     constexpr bool operator==(const TStringConst &other) const
     {
         return const_strcmp(buffer, other.buffer) == 0;
     }
 
+    constexpr bool operator==(const char *str) const
+    {
+        return const_strcmp(buffer, str) == 0;
+    }
+
+    constexpr bool operator==(const std::string &str) const
+    {
+        return const_strcmp(buffer, str.c_str()) == 0;
+    }
+
     constexpr bool operator!=(const TStringConst &other) const
     {
         return !(*this == other);
+    }
+
+    constexpr bool operator!=(const char *str) const
+    {
+        return !(*this == str);
+    }
+
+    constexpr bool operator!=(const std::string &str) const
+    {
+        return !(*this == str);
+    }
+
+    constexpr bool operator<(const TStringConst &other) const
+    {
+        return const_strcmp(buffer, other.buffer) < 0;
+    }
+
+    constexpr bool operator<(const char *str) const
+    {
+        return const_strcmp(buffer, str) < 0;
+    }
+
+    constexpr bool operator<(const std::string &str) const
+    {
+        return const_strcmp(buffer, str.c_str()) < 0;
+    }
+
+    constexpr bool operator<=(const TStringConst &other) const
+    {
+        return const_strcmp(buffer, other.buffer) <= 0;
+    }
+
+    constexpr bool operator<=(const char *str) const
+    {
+        return const_strcmp(buffer, str) <= 0;
+    }
+
+    constexpr bool operator<=(const std::string &str) const
+    {
+        return const_strcmp(buffer, str.c_str()) <= 0;
+    }
+
+    constexpr bool operator>(const TStringConst &other) const
+    {
+        return const_strcmp(buffer, other.buffer) > 0;
+    }
+
+    constexpr bool operator>(const char *str) const
+    {
+        return const_strcmp(buffer, str) > 0;
+    }
+
+    constexpr bool operator>(const std::string &str) const
+    {
+        return const_strcmp(buffer, str.c_str()) > 0;
+    }
+
+    constexpr bool operator>=(const TStringConst &other) const
+    {
+        return const_strcmp(buffer, other.buffer) >= 0;
+    }
+
+    constexpr bool operator>=(const char *str) const
+    {
+        return const_strcmp(buffer, str) >= 0;
+    }
+
+    constexpr bool operator>=(const std::string &str) const
+    {
+        return const_strcmp(buffer, str.c_str()) >= 0;
     }
 
     constexpr char operator[](size_t index) const
@@ -583,10 +668,37 @@ class TStringConst
         return std::string::npos;
     }
 
+    constexpr std::vector<TStringConst> split(const char delimiter) const
+    {
+        std::vector<TStringConst> result;
+        size_t start = 0;
+        for (size_t i = 0; i < length; ++i)
+        {
+            if (buffer[i] == delimiter)
+            {
+                if (i > start)
+                {
+                    result.push_back(substr(start, i - start));
+                }
+                start = i + 1;
+            }
+        }
+        if (start < length)
+        {
+            result.push_back(substr(start, length - start));
+        }
+        return result;
+    }
+
     constexpr bool empty() const
     {
         return length == 0;
     }
 };
+
+inline TStringConst operator"" _TC(const char *str, size_t)
+{
+    return TStringConst(str);
+}
 
 #endif // TSTRING_HPP
