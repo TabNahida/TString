@@ -668,7 +668,7 @@ class TStringConst
         return std::string::npos;
     }
 
-    constexpr std::vector<TStringConst> split(const char delimiter) const
+    std::vector<TStringConst> split(const char delimiter) const
     {
         std::vector<TStringConst> result;
         size_t start = 0;
