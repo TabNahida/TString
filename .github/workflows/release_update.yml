@@ -1,0 +1,51 @@
+name: Update Version in repo-xmake
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout TString repository
+      uses: actions/checkout@v3
+
+    - name: Extract Version Tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+    - name: Download Release Tarball
+      run: |
+        VERSION=${{ env.VERSION }}
+        curl -L -o TString-${VERSION}.tar.gz https://github.com/TabNahida/TString/archive/refs/tags/${VERSION}.tar.gz
+
+    - name: Calculate SHA256 Checksum
+      id: get_checksum
+      run: |
+        CHECKSUM=$(sha256sum TString-${{ env.VERSION }}.tar.gz | awk '{ print $1 }')
+        echo "CHECKSUM=$CHECKSUM" >> $GITHUB_ENV
+
+    - name: Clone repo-xmake repository
+      uses: actions/checkout@v3
+      with:
+        repository: TabNahida/repo-xmake
+        path: repo-xmake
+        token: ${{ secrets.REPO_XMAKE_PAT }}
+
+    - name: Update xmake.lua
+      run: |
+        VERSION=${{ env.VERSION }}
+        CHECKSUM=${{ env.CHECKSUM }}
+        FILE_PATH="repo-xmake/packages/T/TString/xmake.lua"
+        sed -i "/add_versions/a \    add_versions(\"${VERSION}\", \"${CHECKSUM}\")" $FILE_PATH
+
+    - name: Commit and Push Changes
+      run: |
+        cd repo-xmake
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add TString/xmake.lua
+        git commit -m "Update TString version to ${VERSION}"
+        git push
