@@ -46,6 +46,6 @@ jobs:
         cd repo-xmake
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add TString/xmake.lua
+        git add packages/t/tstring/xmake.lua
         git commit -m "Update TString version to ${VERSION}"
         git push
