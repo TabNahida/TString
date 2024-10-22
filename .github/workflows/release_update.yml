@@ -39,15 +39,19 @@ jobs:
         VERSION=${{ env.VERSION }}
         CHECKSUM=${{ env.CHECKSUM }}
         FILE_PATH="repo-xmake/packages/t/tstring/xmake.lua"
-        awk -v version="${VERSION}" -v checksum="${CHECKSUM}" '{
-            print
+        {
             if (/add_versions/) {
-                last_line = NR
+                last_version = $0
+                last_version_line = NR
             }
-        } 
-        NR == last_line + 1 { 
-            print "    add_versions(\"" version "\", \"" checksum "\")"
-        }' $FILE_PATH > tmp && mv tmp $FILE_PATH
+            lines[NR] = $0
+        }
+        NR == last_version_line + 1 {
+          print last_version
+          print "    add_versions(\"" version "\", \"" checksum "\")"
+          next
+        }
+        { print }
 
     - name: Commit and Push Changes
       run: |
