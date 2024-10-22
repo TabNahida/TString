@@ -69,6 +69,14 @@ class TString
         std::memcpy(buffer, str.c_str(), length + 1);
     }
 
+    // New constructor to create TString with a pre-allocated buffer
+    TString(size_t capacity) : length(0)
+    {
+        size_t adjustedCapacity = getClosestPowerOfTwo(capacity);
+        buffer = new char[adjustedCapacity];
+        buffer[0] = '\0';
+    }
+
     TString(const TString &other) : length(other.length)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
