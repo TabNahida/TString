@@ -53,6 +53,7 @@ jobs:
           next
         }
         { print }
+        ' $FILE_PATH > tmp && mv tmp $FILE_PATH
 
     - name: Commit and Push Changes
       run: |
