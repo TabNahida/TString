@@ -218,6 +218,8 @@ class TString
     void clear()
     {
         length = 0;
+        delete[] buffer;
+        buffer = new char[1];
         buffer[0] = '\0';
     }
 
