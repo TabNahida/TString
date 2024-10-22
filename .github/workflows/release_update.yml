@@ -41,19 +41,30 @@ jobs:
         FILE_PATH="repo-xmake/packages/t/tstring/xmake.lua"
         awk -v version="${VERSION}" -v checksum="${CHECKSUM}" '
         {
+            # 检查是否已经添加了这个版本
+            if ($0 ~ "add_versions\\(\"" version "\"") {
+                found = 1
+            }
+            
+            # 记录当前行
+            lines[NR] = $0
             if (/add_versions/) {
-                last_version = $0
                 last_version_line = NR
             }
-            lines[NR] = $0
         }
-        NR == last_version_line + 1 {
-          print last_version
-          print "    add_versions(\"" version "\", \"" checksum "\")"
-          next
-        }
-        { print }
-        ' $FILE_PATH > tmp && mv tmp $FILE_PATH
+        
+        END {
+            # 打印所有行
+            for (i = 1; i <= NR; i++) {
+                print lines[i]
+                # 在最后一个 add_versions 之后插入新版本
+                if (i == last_version_line) {
+                    if (!found) {
+                        print "    add_versions(\"" version "\", \"" checksum "\")"
+                    }
+                }
+            }
+        }' $FILE_PATH > tmp && mv tmp $FILE_PATH
 
     - name: Commit and Push Changes
       run: |
