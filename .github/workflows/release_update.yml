@@ -39,6 +39,7 @@ jobs:
         VERSION=${{ env.VERSION }}
         CHECKSUM=${{ env.CHECKSUM }}
         FILE_PATH="repo-xmake/packages/t/tstring/xmake.lua"
+        awk -v version="${VERSION}" -v checksum="${CHECKSUM}" '
         {
             if (/add_versions/) {
                 last_version = $0
