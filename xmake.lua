@@ -1,10 +1,24 @@
-add_rules("plugin.compile_commands.autoupdate", {outputdir = "./"})
-
 add_languages("cxx20")
+
+option("tcstring")
+    set_default(true)
+    set_showmenu(true)
+    set_description("Enable TCString Support")
+option_end()
+
+if has_config("tcstring") then
+    add_requires("tcstring")
+end
 
 target("tstring")
     set_kind("headeronly")
+    set_options("tcstring")
+
     add_headerfiles("include/TString.hpp")
+
+    if has_config("tcstring") then
+        add_packages("tcstring")
+    end
 target_end()
 
 target("MainTest")
