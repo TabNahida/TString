@@ -4,10 +4,11 @@ option("tcstring")
     set_default(true)
     set_showmenu(true)
     set_description("Enable TCString Support")
+    add_defines("TCSTRING_SUPPORT")
 option_end()
 
 if has_config("tcstring") then
-    add_requires("tcstring")
+    add_requires("tcstring >0.1.3")
 end
 
 target("tstring")

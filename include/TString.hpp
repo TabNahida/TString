@@ -1,11 +1,17 @@
 #ifndef TSTRING_HPP
 #define TSTRING_HPP
 
-#include <algorithm>
 #include <cstring>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#ifdef TCSTRING_SUPPORT
+extern "C"
+{
+#include <TCString.h>
+}
+#endif
 
 class TString
 {
@@ -392,7 +398,7 @@ class TString
         {
             throw std::out_of_range("Position out of range");
         }
-        size_t actualLen = std::min(len, length - pos);
+        size_t actualLen = min(len, length - pos);
         TString result(actualLen + 1); // Pre-allocated buffer
         std::memcpy(result.buffer, buffer + pos, actualLen);
         result.buffer[actualLen] = '\0';
