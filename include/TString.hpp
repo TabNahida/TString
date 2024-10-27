@@ -171,10 +171,20 @@ class TString
         return buffer;
     }
 
+    const TCString *tc_str() const
+    {
+        return (TCString *)this;
+    }
+
     // Conversion operator to const char*
     operator const char *() const
     {
         return buffer;
+    }
+
+    operator const TCString *() const
+    {
+        return (TCString *)this;
     }
 
     size_t buffer_size() const
