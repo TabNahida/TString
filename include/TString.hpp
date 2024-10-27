@@ -236,6 +236,16 @@ class TString
         return length == 0;
     }
 
+    char *begin()
+    {
+        return buffer;
+    }
+
+    char *end()
+    {
+        return buffer + length;
+    }
+
     char &operator[](size_t index)
     {
         return buffer[index];
