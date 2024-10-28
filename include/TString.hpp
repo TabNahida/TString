@@ -166,23 +166,23 @@ class TString
         return length;
     }
 
-    const char *c_str() const
+    constexpr const char *c_str() const
     {
         return buffer;
     }
 
-    const TCString *tc_str() const
+    constexpr const TCString *tc_str() const
     {
         return (TCString *)this;
     }
 
     // Conversion operator to const char*
-    operator const char *() const
+    constexpr operator const char *() const
     {
         return buffer;
     }
 
-    operator const TCString *() const
+    constexpr operator const TCString *() const
     {
         return (TCString *)this;
     }
