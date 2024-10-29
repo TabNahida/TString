@@ -1,6 +1,7 @@
 #ifndef TSTRING_HPP
 #define TSTRING_HPP
 
+#include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -37,20 +38,19 @@ class TString
     }
 
   public:
-    // Default constructor
-    TString() : length(0), buffer(new char[1])
+    inline TString() : length(0), buffer(new char[1])
     {
         buffer[0] = '\0';
     }
 
-    TString(const char *str) : length(strlen(str))
+    inline TString(const char *str) : length(strlen(str))
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
         std::memcpy(buffer, str, length + 1);
     }
 
-    TString(const char *str, size_t len) : length(len)
+    inline TString(const char *str, size_t len) : length(len)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
@@ -58,8 +58,15 @@ class TString
         buffer[length] = '\0';
     }
 
-    // New constructor to create TString from a single character
-    TString(char ch) : length(1)
+    inline TString(const TString &str, size_t len) : length(len)
+    {
+        size_t capacity = getClosestPowerOfTwo(length + 1);
+        buffer = new char[capacity];
+        std::memcpy(buffer, str.buffer, length);
+        buffer[length] = '\0';
+    }
+
+    inline TString(char ch) : length(1)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
@@ -67,36 +74,34 @@ class TString
         buffer[1] = '\0';
     }
 
-    // New constructor to create TString from std::string
-    TString(const std::string &str) : length(str.size())
+    inline TString(const std::string &str) : length(str.size())
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
         std::memcpy(buffer, str.c_str(), length + 1);
     }
 
-    // New constructor to create TString with a pre-allocated buffer
-    TString(size_t capacity) : length(0)
+    inline TString(size_t capacity) : length(0)
     {
         size_t adjustedCapacity = getClosestPowerOfTwo(capacity);
         buffer = new char[adjustedCapacity];
         buffer[0] = '\0';
     }
 
-    TString(const TString &other) : length(other.length)
+    inline TString(const TString &other) : length(other.length)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         buffer = new char[capacity];
         std::memcpy(buffer, other.buffer, length + 1);
     }
 
-    TString(TString &&other) noexcept : length(other.length), buffer(other.buffer)
+    inline TString(TString &&other) noexcept : length(other.length), buffer(other.buffer)
     {
         other.buffer = nullptr;
         other.length = 0;
     }
 
-    TString &operator=(const TString &other)
+    inline TString &operator=(const TString &other)
     {
         if (this != &other)
         {
@@ -109,7 +114,7 @@ class TString
         return *this;
     }
 
-    TString &operator=(TString &&other) noexcept
+    inline TString &operator=(TString &&other) noexcept
     {
         if (this != &other)
         {
@@ -122,7 +127,7 @@ class TString
         return *this;
     }
 
-    TString &operator=(const std::string &str)
+    inline TString &operator=(const std::string &str)
     {
         delete[] buffer;
         length = str.size();
@@ -132,8 +137,7 @@ class TString
         return *this;
     }
 
-    // New operator= for const char*
-    TString &operator=(const char *str)
+    inline TString &operator=(const char *str)
     {
         delete[] buffer;
         length = strlen(str);
@@ -143,12 +147,12 @@ class TString
         return *this;
     }
 
-    ~TString()
+    inline ~TString()
     {
         delete[] buffer;
     }
 
-    void reserve(size_t newCapacity)
+    inline void reserve(size_t newCapacity)
     {
         size_t capacity = getClosestPowerOfTwo(length + 1);
         if (newCapacity > capacity)
@@ -161,7 +165,7 @@ class TString
         }
     }
 
-    size_t size() const
+    inline size_t size() const
     {
         return length;
     }
@@ -171,28 +175,27 @@ class TString
         return buffer;
     }
 
-    constexpr const TCString *tc_str() const
-    {
-        return (TCString *)this;
-    }
-
-    // Conversion operator to const char*
     constexpr operator const char *() const
     {
         return buffer;
+    }
+#ifdef TCSTRING_SUPPORT
+    constexpr const TCString *tc_str() const
+    {
+        return (TCString *)this;
     }
 
     constexpr operator const TCString *() const
     {
         return (TCString *)this;
     }
-
-    size_t buffer_size() const
+#endif
+    inline size_t buffer_size() const
     {
         return getClosestPowerOfTwo(length + 1);
     }
 
-    void append(const TString &str)
+    inline void append(const TString &str)
     {
         size_t newLength = length + str.length;
         size_t newCapacity = getClosestPowerOfTwo(newLength + 1);
@@ -207,7 +210,7 @@ class TString
         length = newLength;
     }
 
-    void append(const char *str)
+    inline void append(const char *str)
     {
         size_t strLength = strlen(str);
         size_t newLength = length + strLength;
@@ -223,7 +226,7 @@ class TString
         length = newLength;
     }
 
-    void append(const std::string &str)
+    inline void append(const std::string &str)
     {
         size_t strLength = str.size();
         size_t newLength = length + strLength;
@@ -239,7 +242,7 @@ class TString
         length = newLength;
     }
 
-    void clear()
+    inline void clear()
     {
         length = 0;
         delete[] buffer;
@@ -247,192 +250,189 @@ class TString
         buffer[0] = '\0';
     }
 
-    bool empty() const
+    inline bool empty() const
     {
         return length == 0;
     }
 
-    char *begin()
+    inline char *begin()
     {
         return buffer;
     }
 
-    char *end()
+    inline char *end()
     {
         return buffer + length;
     }
 
-    char &operator[](size_t index)
+    inline char &operator[](size_t index)
     {
         return buffer[index];
     }
 
-    const char &operator[](size_t index) const
+    inline const char &operator[](size_t index) const
     {
         return buffer[index];
     }
 
-    bool operator==(const TString &other) const
+    inline bool operator==(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) == 0;
     }
 
-    bool operator==(const char *str) const
+    inline bool operator==(const char *str) const
     {
         return std::strcmp(buffer, str) == 0;
     }
 
-    bool operator==(const std::string &str) const
+    inline bool operator==(const std::string &str) const
     {
         return std::strcmp(buffer, str.c_str()) == 0;
     }
 
-    bool operator!=(const TString &other) const
+    inline bool operator!=(const TString &other) const
     {
         return !(*this == other);
     }
 
-    bool operator!=(const char *str) const
+    inline bool operator!=(const char *str) const
     {
         return !(*this == str);
     }
 
-    bool operator!=(const std::string &str) const
+    inline bool operator!=(const std::string &str) const
     {
         return !(*this == str);
     }
 
-    bool operator<(const TString &other) const
+    inline bool operator<(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) < 0;
     }
 
-    bool operator<(const char *str) const
+    inline bool operator<(const char *str) const
     {
         return std::strcmp(buffer, str) < 0;
     }
 
-    bool operator<(const std::string &str) const
+    inline bool operator<(const std::string &str) const
     {
         return std::strcmp(buffer, str.c_str()) < 0;
     }
 
-    bool operator<=(const TString &other) const
+    inline bool operator<=(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) <= 0;
     }
 
-    bool operator<=(const char *str) const
+    inline bool operator<=(const char *str) const
     {
         return std::strcmp(buffer, str) <= 0;
     }
 
-    bool operator<=(const std::string &str) const
+    inline bool operator<=(const std::string &str) const
     {
         return std::strcmp(buffer, str.c_str()) <= 0;
     }
 
-    bool operator>(const TString &other) const
+    inline bool operator>(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) > 0;
     }
 
-    bool operator>(const char *str) const
+    inline bool operator>(const char *str) const
     {
         return std::strcmp(buffer, str) > 0;
     }
 
-    bool operator>(const std::string &str) const
+    inline bool operator>(const std::string &str) const
     {
         return std::strcmp(buffer, str.c_str()) > 0;
     }
 
-    bool operator>=(const TString &other) const
+    inline bool operator>=(const TString &other) const
     {
         return std::strcmp(buffer, other.buffer) >= 0;
     }
 
-    bool operator>=(const char *str) const
+    inline bool operator>=(const char *str) const
     {
         return std::strcmp(buffer, str) >= 0;
     }
 
-    bool operator>=(const std::string &str) const
+    inline bool operator>=(const std::string &str) const
     {
         return std::strcmp(buffer, str.c_str()) >= 0;
     }
 
-    TString &operator+=(const TString &str)
+    inline TString &operator+=(const TString &str)
     {
         append(str);
         return *this;
     }
 
-    TString &operator+=(const char *str)
+    inline TString &operator+=(const char *str)
     {
         append(str);
         return *this;
     }
 
-    TString &operator+=(const std::string &str)
+    inline TString &operator+=(const std::string &str)
     {
         append(str);
         return *this;
     }
 
-    TString operator+(const TString &other) const
+    inline TString operator+(const TString &other) const
     {
         TString result(*this);
         result.append(other);
         return result;
     }
 
-    TString operator+(const char *str) const
+    inline TString operator+(const char *str) const
     {
         TString result(*this);
         result.append(str);
         return result;
     }
 
-    TString operator+(const std::string &str) const
+    inline TString operator+(const std::string &str) const
     {
         TString result(*this);
         result.append(str);
         return result;
     }
 
-    // Substring method
-    TString substr(size_t pos, size_t len) const
+    inline TString substr(size_t pos, size_t len) const
     {
         if (pos > length)
         {
             throw std::out_of_range("Position out of range");
         }
         size_t actualLen = min(len, length - pos);
-        TString result(actualLen + 1); // Pre-allocated buffer
+        TString result(actualLen + 1);
         std::memcpy(result.buffer, buffer + pos, actualLen);
         result.buffer[actualLen] = '\0';
         result.length = actualLen;
         return result;
     }
 
-    // New substring method from index to end
-    TString substr(size_t pos) const
+    inline TString substr(size_t pos) const
     {
         if (pos > length)
         {
             throw std::out_of_range("Position out of range");
         }
         size_t actualLen = length - pos;
-        TString result(actualLen + 1); // Pre-allocated buffer
+        TString result(actualLen + 1);
         std::memcpy(result.buffer, buffer + pos, actualLen);
         result.buffer[actualLen] = '\0';
         result.length = actualLen;
         return result;
     }
 
-    // Find method using strstr
-    size_t find(const TString &str) const
+    inline size_t find(const TString &str) const
     {
         if (str.length == 0)
             return 0;
@@ -447,7 +447,7 @@ class TString
         return std::string::npos;
     }
 
-    size_t find(const char *str) const
+    inline size_t find(const char *str) const
     {
         if (str == nullptr || *str == '\0')
             return 0;
@@ -463,13 +463,12 @@ class TString
         return std::string::npos;
     }
 
-    size_t find(const std::string &str) const
+    inline size_t find(const std::string &str) const
     {
         return find(str.c_str());
     }
 
-    // Split method
-    std::vector<TString> split(const char delimiter) const
+    inline std::vector<TString> split(const char delimiter) const
     {
         std::vector<TString> result;
         size_t start = 0;
@@ -490,20 +489,31 @@ class TString
         }
         return result;
     }
+
+#ifdef TCSTRING_SUPPORT
+    inline uint32_t hash_fnv()
+    {
+        return hashFNV(buffer, length);
+    }
+
+    inline uint32_t hash_murmur(uint32_t seed)
+    {
+        return hashMurmur(buffer, length, seed);
+    }
+#endif
 };
 
 namespace std
 {
 template <> struct hash<TString>
 {
-    size_t operator()(const TString &str) const
+    inline size_t operator()(const TString &str) const
     {
         return std::hash<std::string>()(str.c_str());
     }
 };
 } // namespace std
 
-// User-defined literal for TString
 inline TString operator"" _T(const char *str, size_t)
 {
     return TString(str);
