@@ -512,7 +512,7 @@ template <> struct hash<TString>
         return std::hash<std::string>()(str.c_str());
     }
 };
-} // namespace std
+}
 
 inline TString operator"" _T(const char *str, size_t)
 {
