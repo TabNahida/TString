@@ -15,7 +15,7 @@ option("stl")
 option_end()
 
 if has_config("tcstring") then
-    add_requires("tcstring >0.1.4")
+    add_requires("tcstring >0.1.3")
 end
 
 target("tstring")
