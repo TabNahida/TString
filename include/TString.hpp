@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -503,6 +504,7 @@ class TString
 #endif
 };
 
+#ifdef STL_SUPPORT
 namespace std
 {
 template <> struct hash<TString>
@@ -512,7 +514,16 @@ template <> struct hash<TString>
         return std::hash<std::string>()(str.c_str());
     }
 };
-}
+
+template <> struct formatter<TString> : formatter<string_view>
+{
+    template <typename FormatContext> auto format(const TString &str, FormatContext &ctx) const
+    {
+        return formatter<string_view>::format(string_view(str.c_str(), str.size()), ctx);
+    }
+};
+} // namespace std
+#endif
 
 inline TString operator"" _T(const char *str, size_t)
 {
