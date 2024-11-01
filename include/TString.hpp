@@ -533,7 +533,7 @@ template <> struct formatter<TString> : formatter<string_view>
         return formatter<string_view>::format(string_view(str.c_str(), str.size()), ctx);
     }
 };
-} // namespace std
+}
 #endif
 
 inline TString operator"" _T(const char *str, size_t)
