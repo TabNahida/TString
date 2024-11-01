@@ -4,8 +4,10 @@
 #include <cstdint>
 #include <cstring>
 #include <format>
+#include <ostream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #ifdef TCSTRING_SUPPORT
@@ -511,6 +513,11 @@ class TString
 #ifdef STL_SUPPORT
 namespace std
 {
+inline ostream &operator<<(ostream &stream, const TString &str)
+{
+    return stream << string_view(str.c_str(), str.size());
+}
+
 template <> struct hash<TString>
 {
     inline size_t operator()(const TString &str) const
