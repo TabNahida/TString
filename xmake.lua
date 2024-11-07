@@ -25,7 +25,7 @@ target("tstring")
     add_headerfiles("include/TString.hpp")
 
     if has_config("tcstring") then
-        add_packages("tcstring")
+        add_packages("tcstring", {public = true})
     end
 target_end()
 
@@ -37,9 +37,6 @@ target("MainTest")
     add_includedirs("include")
 
     add_deps("tstring")
-    if has_config("tcstring") then
-        add_packages("tcstring")
-    end
 target_end()
 
 target("BenchMark")
@@ -50,7 +47,4 @@ target("BenchMark")
     add_includedirs("include")
 
     add_deps("tstring")
-    if has_config("tcstring") then
-        add_packages("tcstring")
-    end
 target_end()
