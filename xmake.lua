@@ -20,7 +20,8 @@ end
 
 target("tstring")
     set_kind("headeronly")
-    set_options("tcstring", "stl")
+    set_encodings("utf-8")
+    set_options("tcstring", "stl", {public = true})
 
     add_headerfiles("include/TString.hpp")
 
@@ -31,7 +32,7 @@ target_end()
 
 target("MainTest")
     set_kind("binary")
-    set_options("tcstring", "stl")
+    set_encodings("utf-8")
 
     add_files("src/main.cpp")
     add_includedirs("include")
@@ -41,7 +42,7 @@ target_end()
 
 target("BenchMark")
     set_kind("binary")
-    set_options("tcstring", "stl")
+    set_encodings("utf-8")
 
     add_files("src/benchmark.cpp")
     add_includedirs("include")
